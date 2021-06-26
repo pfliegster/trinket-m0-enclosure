@@ -23,7 +23,7 @@ $fn = 100;
 // Enclosure dimension control variables:
 //
 /////////////////////////////////////////////////////////////////
-rounding_radius = 3;
+trinket_rounding_rad = 3;
 case_wall_thickness = 2;
 pwb_stud_height = 4;
 pwb_lip_height = 0.7;
@@ -40,7 +40,7 @@ mounting_screw_head_inset_depth = 3; // Inset depth into top enclosure part
 minimum_case_width = ada_trk_m0_pwb_length + 2*case_wall_thickness;
 minimum_case_length = ada_trk_m0_pwb_width + 2*case_wall_thickness;
 minimum_case_bottom_height = case_wall_thickness + pwb_stud_height;
-minimum_case_top_height = rounding_radius;
+minimum_case_top_height = trinket_rounding_rad;
 
 // Recommended Default Case dimensions are all >= minimum values
 // computed above. You can also set these to a fixed value as long
@@ -130,13 +130,13 @@ module AdafruitTrinketEnclosureBottom(
     echo("Case Height = ", case_bottom_height + case_top_height);
     echo(" -> Bottom Model Height = ", case_bottom_height);
 
-    outer_dimensions = [case_width - 2*rounding_radius,
-                        case_length - 2*rounding_radius,
+    outer_dimensions = [case_width - 2*trinket_rounding_rad,
+                        case_length - 2*trinket_rounding_rad,
                         case_bottom_height];
     inner_dimensions = outer_dimensions - [2*wall_thickness, 2*wall_thickness, 0];
     lid_shelf_dimensions = outer_dimensions - [2*lid_shelf_width, 2*lid_shelf_width, 0];
                 
-    bottom_z_offset = case_bottom_height/2 + pwb_lip_height - pwb_stud_height - wall_thickness + rounding_radius;
+    bottom_z_offset = case_bottom_height/2 + pwb_lip_height - pwb_stud_height - wall_thickness + trinket_rounding_rad;
     case_bottom_position = [0, ada_trk_m0_pwb_shift, bottom_z_offset];
     pwb_cutout_position = [0, -ada_trk_m0_pwb_shift, -bottom_z_offset];
 
@@ -147,22 +147,22 @@ module AdafruitTrinketEnclosureBottom(
                     intersection() {
                         minkowski() {
                             cube (outer_dimensions, center = true);
-                            sphere(rounding_radius);
+                            sphere(trinket_rounding_rad);
                         }
-                        translate([0, 0, -rounding_radius])
+                        translate([0, 0, -trinket_rounding_rad])
                             cube([case_width, case_length, case_bottom_height], center = true);
                     }
                     // remove rounded, inner cavity:
                     translate([0, 0, wall_thickness]) minkowski() {
                         cube (inner_dimensions, center = true);
-                        sphere(rounding_radius);
+                        sphere(trinket_rounding_rad);
                     }
                     // remove rounded, lid shelf region near top of bottom case section:
-                    translate([0, 0, case_bottom_height/2 - lid_shelf_depth - rounding_radius])
+                    translate([0, 0, case_bottom_height/2 - lid_shelf_depth - trinket_rounding_rad])
                         difference() {
                             minkowski() {
                                 cube(lid_shelf_dimensions, center = true);
-                                sphere(rounding_radius);
+                                sphere(trinket_rounding_rad);
                             }
                             translate([0, 0, -case_bottom_height/2])
                                 cube([case_width+1, case_length+1, case_bottom_height], center = true);
@@ -170,16 +170,16 @@ module AdafruitTrinketEnclosureBottom(
                     // Cutout for wire harness
                     harness_cutout_z_offset = 2 + case_bottom_height/2 - bottom_z_offset +
                         pwb_lip_height - pwb_stud_height;
-                    translate([0, rounding_radius - case_length/2, harness_cutout_z_offset])
+                    translate([0, trinket_rounding_rad - case_length/2, harness_cutout_z_offset])
                         minkowski() {
-                            cube([6, 2*(rounding_radius + wall_thickness), case_bottom_height], center = true);
+                            cube([6, 2*(trinket_rounding_rad + wall_thickness), case_bottom_height], center = true);
                             sphere(1);
                         }
                     // Cutout for USB Connection
                     usb_hole_z_offset = ada_trk_m0_pwb_height + ada_trk_m0_parts[1][1].z/2 - bottom_z_offset;
                     usb_cutout_dimensions = [
                         trinket_usb_cutout_width - 2,
-                        rounding_radius + wall_thickness,
+                        trinket_rounding_rad + wall_thickness,
                         trinket_usb_cutout_height - 2];
                         
                     translate([0, case_length/2, usb_hole_z_offset])
@@ -196,7 +196,7 @@ module AdafruitTrinketEnclosureBottom(
                             screw_depth = mounting_screw_length);
 
                     // If enabled, explicitly cutout PWB volume segment (may be needed for various configurable
-                    // parameter combinations, like high rounding_radius, with minimum case width/length values:
+                    // parameter combinations, like high trinket_rounding_rad, with minimum case width/length values:
                     if (enable_pwb_cutout) {
                         translate(pwb_cutout_position) ada_trnk_m0_pwb_cutout();
                     }
@@ -215,9 +215,9 @@ module AdafruitTrinketEnclosureBottom(
                 translate(case_bottom_position) intersection() {
                     minkowski() {
                         cube (outer_dimensions, center = true);
-                        sphere(rounding_radius);
+                        sphere(trinket_rounding_rad);
                     }
-                    translate([0, 0, -rounding_radius])
+                    translate([0, 0, -trinket_rounding_rad])
                         cube([case_width, case_length, case_bottom_height], center = true);
                 }
             }
@@ -226,7 +226,7 @@ module AdafruitTrinketEnclosureBottom(
         // Add back mounting crew holes to mount enclosure to other objects
         if (add_back_mounting_screws) {
             back_screw_head_height = 2.1;
-            back_screws_x_offset = case_width/2 - rounding_radius - 6.2/2;
+            back_screws_x_offset = case_width/2 - trinket_rounding_rad - 6.2/2;
             back_screws_z_offset = pwb_lip_height - pwb_stud_height - mounting_screw_length;
             translate([-back_screws_x_offset, 1.5, back_screws_z_offset]) {
                 generic_screw_model(screw_diam = 3.4,
@@ -272,7 +272,7 @@ module AdafruitTrinketEnclosureBottom(
 //                  the 'minimum_case_length'.
 //      case_top_height: Overall height of the enclosure. Must be wider than
 //                  the 'minimum_case_top_height', which is set by the 
-//                  'rounding_radius' of the design.
+//                  'trinket_rounding_rad' of the design.
 //      top_z_offset: Computed based on dimensional parameters of the bottom
 //                  enclosure part. Controls how deep the mounting screw
 //                  studs extend below the underside of the Enclosure top
@@ -309,12 +309,12 @@ module AdafruitTrinketEnclosureTop(
     echo("Case Height = ", case_bottom_height + case_top_height);
     echo(" -> Top Model Height = ", case_top_height);
 
-    outer_dimensions = [case_width - 2*rounding_radius,
-                        case_length - 2*rounding_radius,
+    outer_dimensions = [case_width - 2*trinket_rounding_rad,
+                        case_length - 2*trinket_rounding_rad,
                         case_top_height];
     inner_dimensions = outer_dimensions - [2*wall_thickness, 2*wall_thickness, 0];
-    lid_shelf_dimensions = [case_width - 2*rounding_radius - 2*lid_shelf_width - 0.4,
-                        case_length - 2*rounding_radius - 2*lid_shelf_width - 0.4,
+    lid_shelf_dimensions = [case_width - 2*trinket_rounding_rad - 2*lid_shelf_width - 0.4,
+                        case_length - 2*trinket_rounding_rad - 2*lid_shelf_width - 0.4,
                         2*lid_shelf_depth];
                 
     case_top_position = [0, ada_trk_m0_pwb_shift, -lid_shelf_depth];
@@ -335,26 +335,26 @@ module AdafruitTrinketEnclosureTop(
             translate(case_top_position) {
                 difference() {
                     intersection() {
-                        translate([0, 0, case_top_height/2 + lid_shelf_depth - rounding_radius]) minkowski() {
+                        translate([0, 0, case_top_height/2 + lid_shelf_depth - trinket_rounding_rad]) minkowski() {
                             cube (outer_dimensions, center = true);
-                            sphere(rounding_radius);
+                            sphere(trinket_rounding_rad);
                         }
                         translate([0, 0, case_top_height/2 + lid_shelf_depth/2 + 1])
                             cube([case_width+1, case_length+1, case_top_height+lid_shelf_depth+2],
                                 center = true);
                     }
                 // remove rounded, inner cavity:
-                translate([0, 0, case_top_height/2 + lid_shelf_depth - rounding_radius - wall_thickness])
+                translate([0, 0, case_top_height/2 + lid_shelf_depth - trinket_rounding_rad - wall_thickness])
                     minkowski() {
                         cube (inner_dimensions, center = true);
-                        sphere(rounding_radius);
+                        sphere(trinket_rounding_rad);
                     }
                 // Cutout for USB Connection
                 usb_hole_z_offset = ada_trk_m0_pwb_height + ada_trk_m0_parts[1][1].z/2 +
                     lid_shelf_depth - top_z_offset;
                 usb_cutout_dimensions = [
                     trinket_usb_cutout_width - 2,
-                    rounding_radius + wall_thickness,
+                    trinket_rounding_rad + wall_thickness,
                     trinket_usb_cutout_height - 2];
                     
                 translate([0, case_length/2, usb_hole_z_offset])
@@ -375,10 +375,10 @@ module AdafruitTrinketEnclosureTop(
                     translate(screw2_position + [shoulder_width/2, 0, 0])
                         cube([shoulder_width, 2*stud_radius, screw_stud_length], center = true);
                 }
-                translate([0, 0, case_top_height/2 - rounding_radius]) {
+                translate([0, 0, case_top_height/2 - trinket_rounding_rad]) {
                     minkowski() {
                         cube (outer_dimensions, center = true);
-                        sphere(rounding_radius);
+                        sphere(trinket_rounding_rad);
                     }
                 }
             }
@@ -420,7 +420,7 @@ module AdafruitTrinketEnclosureTop(
             cube([case_width+1, case_length+1, 2*lid_shelf_depth], center = true);
             minkowski() {
                 cube(lid_shelf_dimensions, center = true);
-                sphere(rounding_radius);
+                sphere(trinket_rounding_rad);
             }
         }
         // Remove any sections that overlap with the volume of the Bottom Enclosure Part.
@@ -569,3 +569,6 @@ module AdafruitTrinketMountingPegs( peg_height = 6, peg_diam = 1.8) {
         }
     }
 }
+
+// Set this here to indicate the design file is properly loaded and available.
+$trinket_enclosure_elements_are_available = true;
